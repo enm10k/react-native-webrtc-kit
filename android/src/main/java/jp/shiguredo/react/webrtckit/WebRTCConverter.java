@@ -19,6 +19,7 @@ import org.webrtc.RtpReceiver;
 import org.webrtc.RtpSender;
 import org.webrtc.RtpTransceiver;
 import org.webrtc.SessionDescription;
+import org.webrtc.DataChannel
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -601,6 +602,46 @@ final class WebRTCConverter {
         return result;
     }
 
+    //endregion
+
+    //region DataChannel
+    @NonNull
+    static WritableMap dataChannelJsonValue(@NonNull final DataChannel channel,
+                                                 @NonNull final WebRTCRepository repository) {
+        final String valueTag = repository.dataChannels.getValueTag(channel.id());
+        final WritableMap json = Arguments.createMap();
+        json.putString("id", channel.id());
+        json.putString("label", channel.label());
+        json.putBoolean("ordered", channel.ordered);
+        json.putBoolean("negotiated", channel.ordered());
+        json.putString("protocol", channel.protocol);
+        json.putInt("bufferedAmount", channel.bufferedAmount());
+        json.putInt("maxRetransmits", channel.maxRetransmits);
+        json.putString("readyState", dataChannelStateStringValue(channel.state()));
+        if (valueTag != null) {
+            json.putString("valueTag", valueTag);
+        }
+        return json;
+    }
+    //endregion
+
+    //region DataChannel.State
+
+    @NonNull
+    static String dataChannelStateStringValue(@NonNull final DataChannel.State state) {
+        switch (state) {
+            case CONNECTING:
+                return "connecting";
+            case OPEN:
+                return "open";
+            case CLOSING:
+                return "closing";
+            case CLOSED:
+                return "closed";
+            default:
+                throw new IllegalArgumentException("invalid dataChannelState");
+        }
+    }
     //endregion
 
 

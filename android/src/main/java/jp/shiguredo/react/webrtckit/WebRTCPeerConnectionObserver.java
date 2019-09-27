@@ -26,6 +26,7 @@ import static jp.shiguredo.react.webrtckit.WebRTCConverter.iceGatheringStateStri
 import static jp.shiguredo.react.webrtckit.WebRTCConverter.rtpReceiverJsonValue;
 import static jp.shiguredo.react.webrtckit.WebRTCConverter.rtpTransceiverJsonValue;
 import static jp.shiguredo.react.webrtckit.WebRTCConverter.signalingStateStringValue;
+import static jp.shiguredo.react.webrtckit.WebRTCConverter.dataChannelJsonValue;
 
 final class WebRTCPeerConnectionObserver implements PeerConnection.Observer {
 
@@ -248,7 +249,16 @@ final class WebRTCPeerConnectionObserver implements PeerConnection.Observer {
 
     @Override
     public void onDataChannel(DataChannel dataChannel) {
-        // DataChannel は現在対応しない
+        if (peerConnectionPair == null) return;
+        Log.d("WebRTCModule", "onDataChannel()[" + peerConnectionPair.first + "] - dataChannel=" + dataChannel);
+        final WebRTCModule module = getModule();
+        WritableMap channel = Arguments.createMap();
+        WritableMap params = Arguments.createMap();
+        params.putString("valueTag", peerConnectionPair.first);
+        params.putMap("channel", dataChannelJsonValue(dataChannel));
+        module.repository.dataChannels.add(dataChannel.id(), module.createNewValueTag(), dataChannel);
+        dataChannel.registerObserver(new DataChannelObserver(module, peerConnectionPair.first, dataChannel.id(), dataChannel));
+        sendDeviceEvent("peerConnectionDidOpenDataChannel", params);
     }
 
     @Override

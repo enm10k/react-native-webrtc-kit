@@ -14,6 +14,7 @@ import RTCConfiguration from './RTCConfiguration';
 import RTCRtpSender from './RTCRtpSender';
 import RTCRtpReceiver from './RTCRtpReceiver';
 import RTCRtpTransceiver from './RTCRtpTransceiver';
+import RTCRtpReceiver from './RTCDataChannel';
 import logger from '../Util/RTCLogger';
 import RTCMediaConstraints from './RTCMediaConstraints';
 import WebRTC from '../WebRTC';
@@ -106,6 +107,23 @@ export type RTCIceConnectionState =
   | 'completed'
   | 'failed'
   | 'disconnected'
+  | 'closed'
+
+
+/**
+ * RTCPeerConnection の DataChannel の状態です。
+ * 
+ * - `'connecting'`
+ * - `'open'`
+ * - `'closing'`
+ * - `'closed'`
+ * 
+ * @typedef {string} RTCDataChannelState
+ */
+export type RTCDataChannelState =
+  | 'connecting'
+  | 'open'
+  | 'closing'
   | 'closed'
 
 /**
@@ -237,6 +255,14 @@ export default class RTCPeerConnection extends RTCPeerConnectionEventTarget {
    * @since 1.1.0
    */
   transceivers: Array<RTCRtpTransceiver> = [];
+
+
+  /**
+   * DataChannelのリスト。
+   * リストの並びは順不同です。
+   * 
+   */
+  dataChannels: Array<RTCDataChannel> = [];
 
   _valueTag: ValueTag;
   _nativeEventListeners: Array<any> = [];
@@ -541,6 +567,16 @@ export default class RTCPeerConnection extends RTCPeerConnectionEventTarget {
           this.dispatchEvent(new RTCIceCandidateEvent('icecandidate'));
         }
         this.dispatchEvent(new RTCEvent('icegatheringstatechange'));
+      })
+      DeviceEventEmitter.addListener('peerConnectionDidOpenDataChannel', ev => {
+        if (ev.valueTag !== this._valueTag) {
+          return;
+        }
+        // TODO(kdxu): 
+        let dataChannel = new RTCDataChannel(ev.channel);
+        this.dataChannels.push(dataChannel);
+        logger.log(`# PeerConnection[${this._valueTag}]: event: peerConnectionDidOpenDataChannel`);
+        this.dispatchEvent(new RTCEvent('ondatachannel'));
       })
     ]
   }

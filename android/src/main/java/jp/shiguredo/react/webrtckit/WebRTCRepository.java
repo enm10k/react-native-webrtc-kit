@@ -12,6 +12,7 @@ import org.webrtc.RtpReceiver;
 import org.webrtc.RtpSender;
 import org.webrtc.RtpTransceiver;
 import org.webrtc.VideoTrack;
+import org.webrtc.DataChannel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -204,6 +205,12 @@ final class WebRTCRepository {
     //endregion
 
 
+    //region DataChannel
+
+    final DualKeyMap<DataChannel> dataChannels = new DualKeyMap<>();
+
+    //endregion
+
     /**
      * このリポジトリの中身を完全に空にします。
      * その際、格納されていたWebRTC関連のオブジェクトは、現在のところ、明示的に初期化されません。
@@ -223,6 +230,8 @@ final class WebRTCRepository {
         receiverStreamIdsMap.clear();
 
         transceivers.clear();
+
+        dataChannels.clear();
     }
 
     static final class DualKeyMap<V> {

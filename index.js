@@ -13,6 +13,7 @@ export { default as RTCIceServer } from './src/PeerConnection/RTCIceServer';
 export { default as RTCRtpSender } from './src/PeerConnection/RTCRtpSender';
 export { default as RTCRtpReceiver } from './src/PeerConnection/RTCRtpReceiver';
 export { default as RTCRtpTransceiver } from './src/PeerConnection/RTCRtpTransceiver';
+export { default as RTCDataChannel } from './src/PeerConnection/RTCDataChannel';
 export { RTCRtcpParameters } from './src/PeerConnection/RTCRtpParameters';
 export { RTCRtpParameters } from './src/PeerConnection/RTCRtpParameters';
 export { RTCRtpHeaderExtensionParameters } from './src/PeerConnection/RTCRtpParameters';
