@@ -40,6 +40,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface RTCDataChannel (ReactNativeWebRTCKit)
+
+@property (nonatomic, nullable) NSString *valueTag;
+
+- (id)json;
+
+@end
+
 @interface RTCPeerConnection (ReactNativeWebRTCKit) <WebRTCExportable>
 
 @property (nonatomic, nullable) NSString *valueTag;

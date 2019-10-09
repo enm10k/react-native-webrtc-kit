@@ -227,6 +227,38 @@ static const char *streamIdsKey = "streamIds";
     }
 }
 
+
+@implementation RTCDataChannel (ReactNativeWebRTCKit)
+
+- (NSString *)valueTagKey
+{
+    return [NSString stringWithFormat: @"%@",
+            self.dataChannel.channelId];
+}
+
+- (nullable NSString *)valueTag
+{
+    return [WebRTCValueManager valueTagForString: [self valueTagKey]];
+}
+
+- (void)setValueTag:(nullable NSString *)valueTag
+{
+    [WebRTCValueManager setValueTag: valueTag
+                          forString: [self valueTagKey]];
+}
+
+- (id)json
+{
+  // TODO(kdxu): RTCDataChannel の情報を付与する
+    NSMutableDictionary *json =
+    [[NSMutableDictionary alloc]
+     initWithDictionary:
+     @{@"channelId": self.channelId }];
+    if (self.valueTag)
+        json[@"valueTag"] = self.valueTag;
+    return json;
+}
+
 // MARK: - React Native Exports
 
 // MARK: transceiverDirection:resolver:rejecter:
@@ -606,6 +638,23 @@ RCT_EXPORT_METHOD(rtpEncodingParametersSetMinBitrate:(nonnull NSNumber *)bitrate
     }
 }
 
+// MARK: -peerConnectionDataChannel:valueTag:resolver:rejecter:
+
+RCT_EXPORT_METHOD(peerConnectionAddDataChannel:(nonnull NSString *)label
+                  configuration:(nonnull RTCDataChannelConfiguration *) configuration
+                  valueTag:(nonnull NSString *)valueTag
+                  resolver:(nonnull RCTPromiseResolveBlock)resolve
+                  rejecter:(nonnull RCTPromiseRejectBlock)reject) {
+    RTCPeerConnection *peerConnection = [self peerConnectionForKey: valueTag];
+    if (!peerConnection) {
+        return;
+    }
+
+    [peerConnection dataChannelForLabel:label
+                                         configuration:configuration];
+    resolve(nil);
+}
+
 #pragma mark - RTCPeerConnectionDelegate
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
@@ -720,7 +769,11 @@ didStartReceivingOnTransceiver:(RTCRtpTransceiver *)transceiver
 }
 
 - (void)peerConnection:(RTCPeerConnection*)peerConnection didOpenDataChannel:(RTCDataChannel*)dataChannel {
-    // DataChannel は現在対応しない
+    dataChannel.valueTag = [self createNewValueTag];
+    [self addDataChannel: dataChannel forKey: dataChannel.valueTag];
+     // TODO(kdxu): 情報を付与
+    [self.bridge.eventDispatcher sendDeviceEventWithName:@"peerConnectionDidOpenDataChannel"
+                                                    body:@{@"valueTag": peerConnection.valueTag}];
 }
 
 // MARK: Deprecated

@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSArray <RTCRtpSender *> *senders;
 @property (nonatomic, readonly) NSArray <RTCRtpReceiver *> *receivers;
 @property (nonatomic, readonly) NSArray <RTCRtpTransceiver *> *transceivers;
+@property (nonatomic, readonly) NSArray <RTCDataChannel *> *dataChannels;
 
 @property(nonatomic, assign) AVAudioSessionPortOverride portOverride;
 
@@ -70,6 +71,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addTransceiver:(RTCRtpTransceiver *)transceiver
                 forKey:(NSString *)key;
 - (void)removeTransceiverForKey:(NSString *)key;
+
+- (nullable RTCDataChannel *)dataChannelForKey:(NSString *)key;
+- (void)addDataChannel:(RTCDataChannel*)dataChannel
+                forKey:(NSString *)key;
+- (void)removeDataChannelForKey:(NSString *)key;
 
 @end
 

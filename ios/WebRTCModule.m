@@ -24,6 +24,7 @@ static WebRTCModule *sharedModule;
 @property (nonatomic) NSMutableDictionary<NSString*, RTCRtpSender *> *senderDict;
 @property (nonatomic) NSMutableDictionary<NSString*, RTCRtpReceiver *> *receiverDict;
 @property (nonatomic) NSMutableDictionary<NSString*, RTCRtpTransceiver *> *transceiverDict;
+@property (nonatomic) NSMutableDictionary<NSString*, RTCDataChannel *> *dataChannelDict;
 
 @end
 
@@ -261,6 +262,36 @@ static WebRTCModule *sharedModule;
 
     dispatch_sync(self.lock, ^{
         [self.transceiverDict removeObjectForKey: key];
+    });
+}
+
+
+- (NSArray <RTCDataChannel *> *)dataChannels;
+{
+    return [self.dataChannelDict allValues];
+}
+
+- (nullable RTCDataChannel *)dataChannelForKey:(NSString *)key
+{
+    return self.dataChannelDict[key];
+}
+
+- (void)addDataChannel:(RTCDataChannel *)dataChannel
+           forKey:(NSString *)key
+{
+    NSAssert(key != nil, @"key must not be nil");
+    
+    dispatch_sync(self.lock, ^{
+        self.dataChannelDict[key] = dataChannel;
+    });
+}
+
+- (void)removeSenderForKey:(NSString *)key
+{
+    NSAssert(key != nil, @"key must not be nil");
+
+    dispatch_sync(self.lock, ^{
+        [self.senderDict removeObjectForKey: key];
     });
 }
 
